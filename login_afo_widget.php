@@ -212,4 +212,5 @@ function login_validate(){
 }
 
 add_action( 'widgets_init', create_function( '', 'register_widget( "login_wid" );' ) );
-add_action( 'init', 'login_validate' );
+/* do this late, so other plugins can hook on wp_login (like badgeos) */
+add_action( 'init', 'login_validate', 9999 );
