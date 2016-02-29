@@ -75,13 +75,29 @@ class login_wid extends WP_Widget {
 		if(!session_id()){
 			@session_start();
 		}
-		global $post;
+		global $post, $error;
+
+		$default_login_form_hooks = get_option('default_login_form_hooks');
+		$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : 'login';
+	   	/**
+		* Fires before a specified login form action.
+		* The dynamic portion of the hook name, `$action`, refers to the action
+		* that brought the visitor to the login form. Actions include 'postpass',
+		* 'logout', 'lostpassword', etc.
+		* @since 2.8.0
+		*/
+		$default_login_form_hooks == 'Yes'?do_action('login_form_' . $action):'';
+		if ( !empty( $error ) ) {
+			   $_SESSION['msg_class'] = 'error_wid_login';
+			   $_SESSION['msg'] = $error;
+			   unset($error);
+		}
+
 		$redirect_page = get_option('redirect_page');
 		$redirect_page_url = get_option('redirect_page_url');
 		$logout_redirect_page = get_option('logout_redirect_page');
 		$link_in_username = get_option('link_in_username');
-		$default_login_form_hooks = get_option('default_login_form_hooks');
-		
+
 		if($redirect_page_url){
 			$redirect = $redirect_page_url;
 		} else {
@@ -114,7 +130,6 @@ class login_wid extends WP_Widget {
 			<input type="password" name="user_password" required="required"/>
 		</div>
         <?php do_action('login_afo_form');?>
-        <?php $default_login_form_hooks == 'Yes'?do_action('login_form'):'';?>
 		<div class="form-group">
 			<?php $this->add_remember_me();?>
 		</div>
