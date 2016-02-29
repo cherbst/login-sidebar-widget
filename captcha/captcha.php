@@ -44,6 +44,7 @@ if(!class_exists('captcha')){
 	}
 	
 	public function genCode(){
+		$t = '';
 		$textlen = strlen($this->text);
 		for($i = 1; $i <= $this->length; $i++){
 			$t .= substr( $this->text, rand( 0, $textlen - 1 ), 1);

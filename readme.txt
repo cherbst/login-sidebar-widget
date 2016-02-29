@@ -3,8 +3,8 @@ Contributors: avimegladon
 Donate link: http://www.aviplugins.com/donate/
 Tags: login, widget, login widget, widget login, sidebar login, login form, user login, authentication, facebook login, twitter login, google login, google plus, facebook, twitter, social login, social media, facebook comments, fb comment, forgot password, reset password, link
 Requires at least: 2.0.2
-Tested up to: 4.4
-Stable tag: 5.2.1
+Tested up to: 4.4.2
+Stable tag: 5.2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,14 +74,22 @@ The Serbo-Croatian Language translation file is provided by <a href="http://www.
 
 == Screenshots ==
 
-1. Frontend login widget view.
-2. Admin login with captcha security.
-3. settings page view.
-4. Widget view.
-5. Forgot password form.
-6. Facebook Comments Addon view.
+1. Frontend login widget view
+2. Admin login with captcha security
+3. settings page view
+4. settings page view 2
+5. Widget view
+6. Users Login Log
+7. Forgot password form
+8. Facebook Comments Addon view
 
 == Changelog ==
+
+= 5.2.3 =
+* User Login Log feature implemented.
+
+= 5.2.2 =
+* Hooks are added for compatibility.
 
 = 5.2.1 =
 * plugin code modifications.

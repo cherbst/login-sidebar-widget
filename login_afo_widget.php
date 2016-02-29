@@ -75,31 +75,13 @@ class login_wid extends WP_Widget {
 		if(!session_id()){
 			@session_start();
 		}
-		global $post, $error;
-
-		$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : 'login';
-		/**
-		 * Fires before a specified login form action.
-		 *
-		 * The dynamic portion of the hook name, `$action`, refers to the action
-		 * that brought the visitor to the login form. Actions include 'postpass',
-		 * 'logout', 'lostpassword', etc.
-		 *
-		 * @since 2.8.0
-		 */
-		do_action( 'login_form_' . $action );
-
-		if ( !empty( $error ) ) {
-			$_SESSION['msg_class'] = 'error_wid_login';
-			$_SESSION['msg'] = $error;
-			unset($error);
-		}
-
+		global $post;
 		$redirect_page = get_option('redirect_page');
 		$redirect_page_url = get_option('redirect_page_url');
 		$logout_redirect_page = get_option('logout_redirect_page');
 		$link_in_username = get_option('link_in_username');
-
+		$default_login_form_hooks = get_option('default_login_form_hooks');
+		
 		if($redirect_page_url){
 			$redirect = $redirect_page_url;
 		} else {
@@ -132,6 +114,7 @@ class login_wid extends WP_Widget {
 			<input type="password" name="user_password" required="required"/>
 		</div>
         <?php do_action('login_afo_form');?>
+        <?php $default_login_form_hooks == 'Yes'?do_action('login_form'):'';?>
 		<div class="form-group">
 			<?php $this->add_remember_me();?>
 		</div>
@@ -191,19 +174,13 @@ class login_wid extends WP_Widget {
 } 
 
 function login_validate(){
+	$lla = new login_log_adds;
+	
 	if( isset($_POST['option']) and $_POST['option'] == "afo_user_login"){
 		if(!session_id()){
 			session_start();
 		}
 		global $post;
-		
-		$captcha_on_user_login = (get_option('captcha_on_user_login') == 'Yes'?true:false);
-		
-		if( $captcha_on_user_login and (isset($_POST['user_captcha']) and $_POST['user_captcha'] != $_SESSION['captcha_code']) ){
-			$_SESSION['msg_class'] = 'error_wid_login';
-			$_SESSION['msg'] = __('Security code do not match!','login-sidebar-widget');
-			return;
-		} 
 		
 		if($_POST['user_username'] != "" and $_POST['user_password'] != ""){
 			$creds = array();
@@ -216,30 +193,23 @@ function login_validate(){
 			}
 			$creds['remember'] = $remember;
 			$user = wp_signon( $creds, true );
-			if(is_wp_error($user)){
-				$_SESSION['msg_class'] = 'error_wid_login';
-				$_SESSION['msg'] = $user->get_error_message();
-				// replace lost password link
-				$login_afo_forgot_pass_link = get_option('login_afo_forgot_pass_link');
-				if($login_afo_forgot_pass_link){
-					$_SESSION['msg'] = str_replace( wp_lostpassword_url(),
-                                                   get_permalink($login_afo_forgot_pass_link), $_SESSION['msg']);
-				}
-				// replace wp login url with current url
-				$_SESSION['msg'] = str_replace( wp_login_url(),
-                                               $_SERVER['REQUEST_URI'], $_SESSION['msg']);
-			} else{
+			if(isset($user->ID) and $user->ID != ''){
 				wp_set_auth_cookie($user->ID, $remember);
+				$lla->log_add($_SERVER['REMOTE_ADDR'], 'login success', date("Y-m-d H:i:s"), 'success');
 				wp_redirect( $_POST['redirect'] );
 				exit;
+			} else{
+				$_SESSION['msg_class'] = 'error_wid_login';
+				$_SESSION['msg'] = __($user->get_error_message(),'login-sidebar-widget');
+				do_action('afo_login_log_front', $user);
 			}
 		} else {
 			$_SESSION['msg_class'] = 'error_wid_login';
 			$_SESSION['msg'] = __('Username or password is empty!','login-sidebar-widget');
+			$lla->log_add($_SERVER['REMOTE_ADDR'], 'username or password is empty', date("Y-m-d H:i:s"), 'failed');
 		}
 	}
 }
 
 add_action( 'widgets_init', create_function( '', 'register_widget( "login_wid" );' ) );
-/* do this late, so other plugins can hook on wp_login (like badgeos) */
-add_action( 'init', 'login_validate', 9999 );
+add_action( 'init', 'login_validate' );

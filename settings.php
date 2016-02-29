@@ -1,40 +1,8 @@
 <?php
 class login_settings {
 
-	private $default_style = '
-	input[type=text],input[type=password]{
-	margin-bottom: 20px;
-	margin-top: 10px;
-	width:100%;
-	padding: 15px;
-	border:1px solid #E3E3E3;
-}
-input[type=submit]
-{
-	margin-bottom: 20px;
-	width:100%;
-	padding: 15px;
-	border:1px solid #7ac9b7;
-	background-color: #4180C5;
-	color: aliceblue;
-	font-size:15px;
-	cursor:pointer;
-}
-#submit:hover
-{
- background-color: black;
-}
-textarea{
-	width:100%;
-	padding: 15px;
-	margin-top: 10px;
-    border:1px solid #7ac9b7;
-	margin-bottom: 20px;
-	resize:none;
-  } 
-input[type=text]:focus,input[type=password]:focus,textarea:focus {
-	border-color: #4697e4;
-}';
+	private $default_style = 'input[type=text],input[type=password]{margin-bottom: 20px;margin-top: 10px;width:100%;
+	padding: 15px;border:1px solid #E3E3E3;}input[type=submit]{margin-bottom: 20px;width:100%;padding: 15px;border:1px solid #7ac9b7;background-color: #4180C5;color: aliceblue;font-size:15px;cursor:pointer;}#submit:hover{background-color: black;}textarea{width:100%;padding: 15px;margin-top: 10px;border:1px solid #7ac9b7;margin-bottom: 20px;resize:none;}input[type=text]:focus,input[type=password]:focus,textarea:focus {border-color: #4697e4;}';
 	
 	function __construct() {
 		$this->load_settings();
@@ -60,6 +28,8 @@ input[type=text]:focus,input[type=password]:focus,textarea:focus {
 			
 			update_option( 'captcha_on_admin_login',  sanitize_text_field($_POST['captcha_on_admin_login']) );
 			update_option( 'captcha_on_user_login',  sanitize_text_field($_POST['captcha_on_user_login']) );
+			
+			update_option( 'default_login_form_hooks',  sanitize_text_field($_POST['default_login_form_hooks']) );
 			
 			if(isset( $_POST['load_default_style'] ) and sanitize_text_field($_POST['load_default_style']) == "Yes"){
 				update_option( 'custom_style_afo', sanitize_text_field($this->default_style) );
@@ -87,6 +57,8 @@ input[type=text]:focus,input[type=password]:focus,textarea:focus {
 	
 	$captcha_on_admin_login = get_option('captcha_on_admin_login');
 	$captcha_on_user_login = get_option('captcha_on_user_login');
+	
+	$default_login_form_hooks = get_option('default_login_form_hooks');
 	
 	$custom_style_afo = stripslashes(get_option('custom_style_afo'));
 	
@@ -205,7 +177,24 @@ input[type=text]:focus,input[type=password]:focus,textarea:focus {
 		<td><strong><?php _e('Captcha on User Login','login-sidebar-widget');?></strong></td>
 		<td><input type="checkbox" name="captcha_on_user_login" value="Yes" <?php echo $captcha_on_user_login == 'Yes'?'checked="checked"':'';?> /><i>Check to enable captcha on user login form</i></td>
 	  </tr>
-      
+      <tr>
+		<td colspan="2">&nbsp;</td>
+	  </tr>
+      <tr>
+		<td colspan="2">
+        <div style="border:1px solid #AEAE00; width:94%; background-color:#FFF; margin:0px auto; padding:10px;">
+        Click <a href="options-general.php?page=login_log_afo">here</a> to check the user <strong>Login Log</strong>. Use <strong><a href="http://www.aviplugins.com/fb-login-widget-pro/" target="_blank">PRO</a></strong> version that has added security with <strong>Blocking IP</strong> after 5 wrong login attempts. <strong>Blocked IPs</strong> can be <strong>Whitelisted</strong> from admin panel or the <strong>Block</strong> gets automatically removed after <strong>1 Day</strong>.
+        </div>
+        </td>
+	  </tr>
+      <tr>
+        <td width="45%"><h1><?php _e('Compatibility','login-sidebar-widget');?></h1></td>
+        <td width="55%">&nbsp;</td>
+      </tr>
+      <tr>
+		<td valign="top"><strong><?php _e('Enable default WordPress login form hooks','login-sidebar-widget');?></strong></td>
+		<td><input type="checkbox" name="default_login_form_hooks" value="Yes" <?php echo $default_login_form_hooks == 'Yes'?'checked="checked"':'';?> /><i>Check to <strong>Enable</strong> default WordPress login form hooks. This will make the login form compatible with other plugins. For example <strong>Enable</strong> this if you want to use CAPTCHA on login, from another plugin. <strong>Disable</strong> this so that no other plugins can interfere with your login form.</i></td>
+	  </tr>
 	   <tr>
 			<td width="45%"><h1><?php _e('Styling','login-sidebar-widget');?></h1></td>
 			<td width="55%">&nbsp;</td>
@@ -388,4 +377,3 @@ input[type=text]:focus,input[type=password]:focus,textarea:focus {
 	<?php
 	}
 }
-new login_settings;
